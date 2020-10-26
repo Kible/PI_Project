@@ -1,13 +1,14 @@
-import pygame
+import pygame 
 from numpy import random, sqrt, log
 
-class Rabbit:
+class Rabbit(pygame.sprite.Sprite):
     
     def __init__(self, position, sprite):
+        super().__init__()
         print("Hello im a Rabbit")
-        self.sprite = sprite
-        self.position = position
+        self.image = sprite
         self.rect = sprite.get_rect()
+        self.position = position
         self.rect.x = position[0]
         self.rect.y = position[1]
         
@@ -25,6 +26,13 @@ class Rabbit:
             self.position[1] = self.position[1]-40
             self.rect.y = self.position[1]
             print(self.rect)
+
+
+    def reset(self, position):
+        self.position = position
+        self.rect.x = position[0]
+        self.rect.y = position[1]
+    
 
     #chamada a funcao do numpy
     def guass(self):
