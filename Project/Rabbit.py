@@ -1,5 +1,6 @@
 import pygame 
-from numpy import random, sqrt, log
+
+from Distribuicoes import *
 
 class Rabbit(pygame.sprite.Sprite):
     
@@ -20,8 +21,9 @@ class Rabbit(pygame.sprite.Sprite):
         if pygame.time.get_ticks()-self.last_jump>=self.cooldown:
             #update cooldown timer
             self.last_jump = pygame.time.get_ticks()
-            self.cooldown = self.guass()
+            self.cooldown = normal(500, 200)
             print(self.cooldown)
+            
             #move the rabbit
             self.position[1] = self.position[1]-40
             self.rect.y = self.position[1]
@@ -34,28 +36,11 @@ class Rabbit(pygame.sprite.Sprite):
         self.rect.y = position[1]
     
 
-    #chamada a funcao do numpy
-    def guass(self):
-        x = random.normal(loc=500, scale=200, size=1)
-        return x[0]
-
+    
 
     
 
-#Implementacao do algoritmo
-def normal(mu, sigma):
-        #Unif intervalo [0, 1]
-        #To sample Unif[a, b], b > a multiply the output of random_sample by (b-a) and add a:
-        #[-1,1] => a=-1 && b = 1
-        a=-1
-        b=1
-        while True:
-            u1 = random.random()*(b-a)+a
-            u2 = random.random()*(b-a)+a
-            u = u1**2 + u2**2
-            if u<1:
-                break
-        return mu + sigma * u1 * sqrt(-2.0 * log(u)/u)
+
         
        
 

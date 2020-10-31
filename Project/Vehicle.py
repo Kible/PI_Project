@@ -16,7 +16,6 @@ class Vehicle(pygame.sprite.Sprite):
     def update(self):
         self.position[0] = self.position[0]+self.vel
         self.rect.x = self.position[0]
-        print(self.rect)
         
         if not pygame.Rect(-200, 0, 1200, 600).contains(self.rect):
             self.kill()

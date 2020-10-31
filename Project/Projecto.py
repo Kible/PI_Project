@@ -1,5 +1,7 @@
 import sys, pygame
 import Rabbit, Vehicle
+from Distribuicoes import *
+from numpy import random
 
 pygame.init()
 
@@ -30,11 +32,50 @@ truckRight_sprite = pygame.image.load(truckRight_filename).convert_alpha()
 #Create Player Rabbit
 rabbit = Rabbit.Rabbit([width/2 - 40, height-40], rabbit_sprite)
 bike = Vehicle.Vehicle([width,40], bikeLeft_sprite, -4)
-bike2 = Vehicle.Vehicle([0, 0], bikeRight_sprite, 4)
+bike2 = Vehicle.Vehicle([0, 44], bikeRight_sprite, 4)
 truck = Vehicle.Vehicle([0, 44], truckRight_sprite, 0.7)
 
+#Sprite Groups
 player_sprites = pygame.sprite.Group(rabbit)
 vehicle_sprites = pygame.sprite.Group(truck)
+
+
+#Spawn cooldown/logic
+exp_min = 250
+exp_med = 400
+
+spawn_cooldown = 1000
+last_spawn=0
+
+lane_numbers = 5
+lane_probability = 0.5
+
+
+def spawn():
+    global last_spawn
+    global spawn_cooldown
+
+    global exp_min
+    global exp_med
+
+    global lane_numbers
+    global lane_probability
+    
+    #spawn cooldown check
+    if pygame.time.get_ticks()-last_spawn>=spawn_cooldown:
+        last_spawn = pygame.time.get_ticks()
+        spawn_cooldown = expo(exp_min, exp_med)
+
+
+        #lane check
+        via = binomial(lane_numbers, lane_probability)
+        if via<=2:
+            bike = Vehicle.Vehicle([width,via*80+44], bikeLeft_sprite, -4)
+        else:
+            bike = Vehicle.Vehicle([width,via*80+88], bikeLeft_sprite, -4)
+        vehicle_sprites.add(bike)
+        print(via)
+
 
 #Game Loop
 running = True
@@ -54,7 +95,8 @@ while running:
     if hit:
         rabbit.reset([width/2 - 40, height-40])
         
-        
+    spawn()
+    
     #Background              
     screen.blit(background_sprite, background_sprite.get_rect())
 
@@ -67,3 +109,6 @@ while running:
     
     pygame.display.flip()
     clock.tick(60)
+
+
+
