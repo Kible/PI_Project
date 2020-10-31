@@ -4,7 +4,6 @@ class Vehicle(pygame.sprite.Sprite):
 
     def __init__(self, position, sprite, vel):
         super().__init__()
-        print("Hello im a Vehicle")
         self.image = sprite
         self.rect = sprite.get_rect()
         self.position = position

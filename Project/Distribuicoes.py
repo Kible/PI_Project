@@ -1,5 +1,6 @@
 from numpy import random, sqrt, log
 
+#Normal/Gauss Continua
 def normal(mu, sigma):
         #Unif intervalo [0, 1]
         #To sample Unif[a, b], b > a multiply the output of random_sample by (b-a) and add a:
@@ -14,11 +15,12 @@ def normal(mu, sigma):
                 break
         return mu + sigma * u1 * sqrt(-2.0 * log(u)/u)
 
+#Exponencial Continua
 def expo(a, med):
     u = random.random()
     return a-med*log(u)
 
-
+#Bernoulli Discreta (um caso especifico da discreta em que n = 1)
 def bernoulli(p):
     u = random.random()
     if u<p:
@@ -26,7 +28,7 @@ def bernoulli(p):
     else:
         return 0
 
-
+#Binomial Discreta
 def binomial(n, p):
     cases = 0
     for i in range(n):
@@ -34,3 +36,13 @@ def binomial(n, p):
 
     return cases
     
+#Uniforme Discreta (com [0,1], e o mesmo que Bernoulli com p = 0.5)
+def uniformeCont(a, b):
+        u = random.random()
+        return a+int((b-a+1)*u)
+        
+
+#Uniforme Continua
+def uniformeDisc(a, b):
+        u = random.random()
+        return a+((b-a)*u)

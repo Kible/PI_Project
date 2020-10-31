@@ -15,36 +15,37 @@ pygame.display.set_caption("Rabitter")
 #Clock and timer
 clock = pygame.time.Clock()
 
-#Load Images
+#Load Rabbit+Background
 rabbit_filename = "./imgs/rabbit.png"
 rabbit_sprite = pygame.image.load(rabbit_filename).convert_alpha()
 background_filename = "./imgs/background.png"
 background_sprite = pygame.image.load(background_filename).convert()
+
+#Load Vehicles
 bikeLeft_filename = "./imgs/bikeLeft.png"
-bikeLeft_sprite = pygame.image.load(bikeLeft_filename).convert_alpha()
 bikeRight_filename = "./imgs/bikeRight.png"
-bikeRight_sprite = pygame.image.load(bikeRight_filename).convert_alpha()
+truckLeft_filename = "./imgs/truckLeft.png"
 truckRight_filename = "./imgs/truckRight.png"
-truckRight_sprite = pygame.image.load(truckRight_filename).convert_alpha()
+carLeft_filename = "./imgs/carLeft.png"
+carRight_filename = "./imgs/carRight.png"
 
-
+fileNames=[bikeLeft_filename, carLeft_filename, truckLeft_filename, bikeRight_filename, carRight_filename, truckRight_filename]
+sprites = []
+for i in range(6):
+    sprites.append(pygame.image.load(fileNames[i]).convert_alpha())
 
 #Create Player Rabbit
-rabbit = Rabbit.Rabbit([width/2 - 40, height-40], rabbit_sprite)
-bike = Vehicle.Vehicle([width,40], bikeLeft_sprite, -4)
-bike2 = Vehicle.Vehicle([0, 44], bikeRight_sprite, 4)
-truck = Vehicle.Vehicle([0, 44], truckRight_sprite, 0.7)
+rabbit = Rabbit.Rabbit([width, height], rabbit_sprite)
 
 #Sprite Groups
 player_sprites = pygame.sprite.Group(rabbit)
-vehicle_sprites = pygame.sprite.Group(truck)
+vehicle_sprites = pygame.sprite.Group()
 
 
 #Spawn cooldown/logic
 exp_min = 250
-exp_med = 400
-
-spawn_cooldown = 1000
+exp_med = 450
+spawn_cooldown = 500
 last_spawn=0
 
 lane_numbers = 5
@@ -68,13 +69,22 @@ def spawn():
 
 
         #lane check
-        via = binomial(lane_numbers, lane_probability)
+        via = uniformeCont(0, 5)
+
+        #car check
+        car_type = binomial(2, 0.5)
+
+        #vel
+        car_vel = uniformeDisc(3, 3.3)
+        
         if via<=2:
-            bike = Vehicle.Vehicle([width,via*80+44], bikeLeft_sprite, -4)
+            vehicle = sprites[car_type]
+            car = Vehicle.Vehicle([width,via*80+50], vehicle, car_vel*-1)
         else:
-            bike = Vehicle.Vehicle([width,via*80+88], bikeLeft_sprite, -4)
-        vehicle_sprites.add(bike)
-        print(via)
+            vehicle = sprites[car_type+3]
+            car = Vehicle.Vehicle([0-vehicle.get_width(),via*80+90], vehicle, car_vel)
+        vehicle_sprites.add(car)
+        
 
 
 #Game Loop
@@ -92,8 +102,12 @@ while running:
 
     #Collision checking between vehicleGroup and Rabbit
     hit = pygame.sprite.spritecollide(rabbit, vehicle_sprites, True)
+    
     if hit:
-        rabbit.reset([width/2 - 40, height-40])
+        rabbit.reset()
+        if rabbit.score>0:
+            rabbit.score = rabbit.score-1
+        print(rabbit.score)
         
     spawn()
     
