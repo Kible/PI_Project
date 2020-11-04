@@ -37,12 +37,12 @@ def binomial(n, p):
     return cases
     
 #Uniforme Discreta (com [0,1], e o mesmo que Bernoulli com p = 0.5)
-def uniformeCont(a, b):
+def uniformeDisc(a, b):
         u = random.random()
         return a+int((b-a+1)*u)
         
 
 #Uniforme Continua
-def uniformeDisc(a, b):
+def uniformeCont(a, b):
         u = random.random()
         return a+((b-a)*u)

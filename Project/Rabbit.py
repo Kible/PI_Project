@@ -1,6 +1,10 @@
 import pygame 
-
 from Distribuicoes import *
+
+#Load Rabbit Sound
+pygame.mixer.init()
+rabbit_jump_Sound = pygame.mixer.Sound("./sound/rabbit_jump.wav")
+rabbit_win_Sound = pygame.mixer.Sound("./sound/win.wav")
 
 class Rabbit(pygame.sprite.Sprite):
     
@@ -21,6 +25,9 @@ class Rabbit(pygame.sprite.Sprite):
         
     def move(self):
         if pygame.time.get_ticks()-self.last_jump>=self.cooldown:
+
+            rabbit_jump_Sound.play()
+            
             #update cooldown timer
             self.last_jump = pygame.time.get_ticks()
             self.cooldown = normal(500, 200)
@@ -28,9 +35,10 @@ class Rabbit(pygame.sprite.Sprite):
             
             #move the rabbit
             self.position[1] = self.position[1]-40
-            self.rect.y = self.position[1]
-
+            self.rect.y = self.position[1] 
+            
             if(self.position[1] == 0):
+                rabbit_win_Sound.play()
                 self.score = self.score + 1
                 self.reset()
                 print(self.score)

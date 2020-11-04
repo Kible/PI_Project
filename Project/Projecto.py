@@ -43,13 +43,10 @@ vehicle_sprites = pygame.sprite.Group()
 
 
 #Spawn cooldown/logic
-exp_min = 250
+exp_min = 300
 exp_med = 450
 spawn_cooldown = 500
 last_spawn=0
-
-lane_numbers = 5
-lane_probability = 0.5
 
 
 def spawn():
@@ -69,13 +66,13 @@ def spawn():
 
 
         #lane check
-        via = uniformeCont(0, 5)
+        via = uniformeDisc(0, 5)
 
         #car check
         car_type = binomial(2, 0.5)
 
         #vel
-        car_vel = uniformeDisc(3, 3.3)
+        car_vel = uniformeCont(3.2, 3.5)
         
         if via<=2:
             vehicle = sprites[car_type]
@@ -83,9 +80,19 @@ def spawn():
         else:
             vehicle = sprites[car_type+3]
             car = Vehicle.Vehicle([0-vehicle.get_width(),via*80+90], vehicle, car_vel)
-        vehicle_sprites.add(car)
-        
 
+        #check for overlap on spawn
+        hit = pygame.sprite.spritecollideany(car, vehicle_sprites, False)
+        if not hit:
+            vehicle_sprites.add(car)
+        else:
+            car.kill()
+            del car
+
+font = pygame.font.Font('freesansbold.ttf', 30)         
+text = font.render(str(rabbit.score), True, (0,0,128))
+textRect = text.get_rect()
+textRect.center = (width-40, height-18)
 
 #Game Loop
 running = True
@@ -99,6 +106,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 rabbit.move()
+                text = font.render(str(rabbit.score), True, (0,0,128))
 
     #Collision checking between vehicleGroup and Rabbit
     hit = pygame.sprite.spritecollide(rabbit, vehicle_sprites, True)
@@ -107,8 +115,9 @@ while running:
         rabbit.reset()
         if rabbit.score>0:
             rabbit.score = rabbit.score-1
-        print(rabbit.score)
-        
+            text = font.render(str(rabbit.score), True, (0,0,128))
+
+    #Vehicle Spawner    
     spawn()
     
     #Background              
@@ -120,6 +129,9 @@ while running:
     
     #Player Rabbit
     player_sprites.draw(screen)
+
+    #Score
+    screen.blit(text, textRect)
     
     pygame.display.flip()
     clock.tick(60)
