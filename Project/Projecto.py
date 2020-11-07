@@ -45,41 +45,66 @@ vehicle_sprites = pygame.sprite.Group()
 #Spawn cooldown/logic
 exp_min = 300
 exp_med = 450
-spawn_cooldown = 500
+spawn_cooldown = 0
 last_spawn=0
 
+#via speed
+via1Speed = 0
+via2Speed = 0
+via3Speed = 0
+
+def calculateStage(score):
+    global via1Speed
+    global via2Speed
+    global via3Speed
+
+    global exp_min
+    global exp_med
+
+    speedInc = score/3
+    via1Speed = uniformeCont(3+speedInc, 3.2+speedInc)
+    via2Speed = uniformeCont(3.2+speedInc, 3.4+speedInc)
+    via3Speed = uniformeCont(3.6+speedInc, 3.8+speedInc)
+
+    spawnInc = score*12
+    exp_min = 300 - spawnInc
+    exp_med = 450 - spawnInc
+
+calculateStage(rabbit.score)
 
 def spawn():
     global last_spawn
     global spawn_cooldown
 
-    global exp_min
-    global exp_med
-
-    global lane_numbers
-    global lane_probability
-    
     #spawn cooldown check
     if pygame.time.get_ticks()-last_spawn>=spawn_cooldown:
         last_spawn = pygame.time.get_ticks()
         spawn_cooldown = expo(exp_min, exp_med)
 
-
         #lane check
         via = uniformeDisc(0, 5)
 
         #car check
-        car_type = binomial(2, 0.5)
-
-        #vel
-        car_vel = uniformeCont(3.2, 3.5)
+        car_type = binomial(2, 0.4)
         
         if via<=2:
             vehicle = sprites[car_type]
-            car = Vehicle.Vehicle([width,via*80+50], vehicle, car_vel*-1)
+            if via==0:
+                car_speed = via1Speed
+            elif via==1:
+                car_speed = via2Speed
+            else:
+                car_speed = via3Speed
+            car = Vehicle.Vehicle([width,via*80+50], vehicle, car_speed*-1)
         else:
             vehicle = sprites[car_type+3]
-            car = Vehicle.Vehicle([0-vehicle.get_width(),via*80+90], vehicle, car_vel)
+            if via==3:
+                car_speed = via3Speed
+            elif via==4:
+                car_speed = via2Speed
+            else:
+                car_speed = via1Speed
+            car = Vehicle.Vehicle([0-vehicle.get_width(),via*80+90], vehicle, car_speed)
 
         #check for overlap on spawn
         hit = pygame.sprite.spritecollideany(car, vehicle_sprites, False)
@@ -94,6 +119,16 @@ text = font.render(str(rabbit.score), True, (0,0,128))
 textRect = text.get_rect()
 textRect.center = (width-40, height-18)
 
+def resetGame(score):
+    global text
+    
+    for v in vehicle_sprites.sprites():
+            v.kill()
+            del v
+    rabbit.reset()
+    calculateStage(score)
+    text = font.render(str(rabbit.score), True, (0,0,128))
+
 #Game Loop
 running = True
 while running:
@@ -106,16 +141,18 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 rabbit.move()
-                text = font.render(str(rabbit.score), True, (0,0,128))
-
+                if rabbit.win:
+                    rabbit.playWinSound()
+                    resetGame(rabbit.score)
+                    
     #Collision checking between vehicleGroup and Rabbit
     hit = pygame.sprite.spritecollide(rabbit, vehicle_sprites, True)
     
     if hit:
-        rabbit.reset()
         if rabbit.score>0:
             rabbit.score = rabbit.score-1
-            text = font.render(str(rabbit.score), True, (0,0,128))
+        rabbit.playLoseSound()
+        resetGame(rabbit.score)
 
     #Vehicle Spawner    
     spawn()
